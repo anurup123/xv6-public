@@ -37,3 +37,7 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+int getyear(void);
+int count_running_processes(void);
+// In user.h
+int nice(int pid, int value);

@@ -182,6 +182,9 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_hello\
+	_getyear_test\
+    _testcount\
+	_nice\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

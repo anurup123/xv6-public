@@ -6,6 +6,9 @@
 #include "proc.h"
 #include "x86.h"
 #include "syscall.h"
+extern int sys_getyear(void);
+extern int sys_count_running_processes(void);  // Declare the prototype
+extern int sys_nice(void);
 
 // User code makes a system call with INT T_SYSCALL.
 // System call number in %eax.
@@ -126,6 +129,11 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_getyear] sys_getyear,
+[SYS_count_running_processes] sys_count_running_processes,
+[SYS_nice] sys_nice,
+
+
 };
 
 void

@@ -58,13 +58,18 @@ struct proc*
 myproc(void) {
   struct cpu *c;
   struct proc *p;
+  
   pushcli();
   c = mycpu();
   p = c->proc;
   popcli();
   return p;
 }
-
+// struct proc {
+//     // ... (other fields)
+//     int nice;  // Add this field to store the nice value
+//     // ... (other fields)
+// };
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
@@ -88,7 +93,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-
+ p->nice = 0;
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -114,9 +119,70 @@ found:
 
   return p;
 }
+// In proc.c
+int count_running_processes(void) {
+    struct proc *p;
+    int count = 0;
+
+    acquire(&ptable.lock);  // Lock the process table
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != UNUSED) {  // Check if the process is active
+            cprintf("Process PID: %d\n", p->pid);  // Print each active process's PID
+            count++;
+        }
+    }
+
+    release(&ptable.lock);  // Unlock the process table
+    return count;  // Return the count of active processes
+}
 
 //PAGEBREAK: 32
 // Set up first user process.
+
+// int set_nice(int pid, int value) {
+//     struct proc *p;
+//     int old_nice = -1;
+
+//     acquire(&ptable.lock);  // Lock the process table
+
+//     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+//         if (p->pid == pid) {  // Find the process with the given PID
+//             old_nice = p->nice;
+//             p->nice = value;  // Update the nice value
+//             cprintf("Updating PID %d nice value from %d to %d\n", pid, old_nice, value);
+
+//             break;
+//         }
+//     }
+
+//     release(&ptable.lock);  // Unlock the process table
+//     return old_nice;
+// }
+
+int set_nice(int pid, int value) {
+    struct proc *p;
+    int old_nice = -1;
+     if (value > 5) {
+        cprintf("Error: Nice value cannot be set above 5.\n");
+        return -1;
+    }
+
+    acquire(&ptable.lock);  // Lock the process table
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {  // Find the process with the given PID
+            old_nice = p->nice;
+            p->nice = value;  // Update the nice value
+            cprintf("Updating PID %d nice value from %d to %d\n", pid, old_nice, value);
+            break;
+        }
+    }
+
+    release(&ptable.lock);  // Unlock the process table
+    return old_nice;  // Return the old nice value
+}
+
 void
 userinit(void)
 {

@@ -120,6 +120,9 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int             count_running_processes(void);  
+int             set_nice(int pid, int value);
+// int set_nice(int pid, int value, int *old_nice);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
