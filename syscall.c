@@ -106,6 +106,7 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_set_nice(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,6 +133,7 @@ static int (*syscalls[])(void) = {
 [SYS_getyear] sys_getyear,
 [SYS_count_running_processes] sys_count_running_processes,
 [SYS_nice] sys_nice,
+    [SYS_set_nice]    sys_set_nice,
 
 
 };

@@ -170,3 +170,13 @@ int sys_nice(void) {
 
     return set_nice(pid, value);
 }
+
+int sys_set_nice(void) {
+    int pid, value;
+
+    // Retrieve arguments passed from the user space
+    if (argint(0, &pid) < 0 || argint(1, &value) < 0)
+        return -1;
+
+    return set_nice(pid, value);  // Call the internal set_nice function
+}

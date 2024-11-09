@@ -23,3 +23,4 @@
 #define SYS_getyear 22
 #define SYS_count_running_processes 23  // Or the next available number
 #define SYS_nice 24  // Or the next available number
+#define SYS_set_nice 25  

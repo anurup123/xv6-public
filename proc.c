@@ -6,6 +6,8 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#define PRIORITY
+
 
 struct {
   struct spinlock lock;
@@ -94,6 +96,7 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
  p->nice = 0;
+ p->priority = 3;  // Default priority value for new processes
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -385,13 +388,85 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
-void
-scheduler(void)
+// void
+// scheduler(void)
+// {
+//   struct proc *p;
+//   struct cpu *c = mycpu();
+//   c->proc = 0;
+  
+//   for(;;){
+//     // Enable interrupts on this processor.
+//     sti();
+
+//     // Loop over process table looking for process to run.
+//     acquire(&ptable.lock);
+//     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+//       if(p->state != RUNNABLE)
+//         continue;
+
+//       // Switch to chosen process.  It is the process's job
+//       // to release ptable.lock and then reacquire it
+//       // before jumping back to us.
+//       c->proc = p;
+//       switchuvm(p);
+//       p->state = RUNNING;
+
+//       swtch(&(c->scheduler), p->context);
+//       switchkvm();
+
+//       // Process is done running for now.
+//       // It should have changed its p->state before coming back.
+//       c->proc = 0;
+//     }
+//     release(&ptable.lock);
+
+//   }
+// }
+
+void scheduler(void)
 {
-  struct proc *p;
+  #ifdef PRIORITY
+  struct proc *p1, *p2;
+
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
+  for(;;) {
+    sti();
+    struct proc *hiP;
+
+    acquire(&ptable.lock);
+
+    for(p1=ptable.proc; p1 < &ptable.proc[NPROC]; p1++) {
+      if(p1->state != RUNNABLE) {
+        continue;
+      }
+
+      hiP = p1;
+
+      for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++) {
+        if (p2->state != RUNNABLE) {
+          continue;
+        }
+        if(hiP->priority > p2->priority) {
+          hiP = p2;
+        }
+      }
+      p1 = hiP;
+      c->proc = p1;
+      switchuvm(p1);
+      p1->state = RUNNING;
+
+      swtch(&(c->scheduler), p1->context);
+      switchkvm();
+
+      c->proc = 0;
+    }
+    release(&ptable.lock);
+  }
+
+  #else
   for(;;){
     // Enable interrupts on this processor.
     sti();
@@ -405,21 +480,23 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      c->proc = p;
+      proc = p;
       switchuvm(p);
       p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
+      swtch(&cpu->scheduler, p->context);
       switchkvm();
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
-      c->proc = 0;
+      proc = 0;
     }
     release(&ptable.lock);
 
   }
+  #endif
+
 }
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores

@@ -33,3 +33,4 @@ SYSCALL(getyear)
 SYSCALL(count_running_processes)
 
 SYSCALL(nice)
+SYSCALL(set_nice)

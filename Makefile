@@ -185,6 +185,7 @@ UPROGS=\
 	_getyear_test\
     _testcount\
 	_nice\
+	_test_process\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
