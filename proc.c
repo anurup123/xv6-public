@@ -95,8 +95,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
- p->nice = 0;
- p->priority = 3;  // Default priority value for new processes
+  p->nice = 0;
+  p->priority = 3;  // Default priority value for new processes
   release(&ptable.lock);
 
   // Allocate kernel stack.

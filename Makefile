@@ -186,7 +186,8 @@ UPROGS=\
     _testcount\
 	_nice\
 	_test_process\
-
+    _test2\
+	
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
 
